@@ -1,0 +1,11 @@
+{
+  "name": "websocketgameclient",
+  "version": "1.0.0",
+  "description": "client of the project",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "author": "redTreeOnWall",
+  "license": "GPL-3.0"
+}

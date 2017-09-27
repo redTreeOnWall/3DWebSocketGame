@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=0.3,user-scalable=no">
+    <title>game</title>
+    <script src ="./js/jquery-3.2.1.min.js"></script>
+    <script src = "./js/three.min.js"></script>
+    <script src = "./js/OBJLoader.js"></script>
+    <script src = "./js/DeviceOrientationControls.js"></script>
+    <style type="text/css">
+         body {
+            margin: 0;
+            padding: 0;
+            color:#00ff00;
+            background-color:#000000;
+        }
+        #world1_canvas {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        #arrow{
+        	position:fixed;
+        }
+        #stop{
+            color:#00ff00;
+            background-color: #000000;
+            cursor: pointer;
+            position:fixed;
+        }
+    </style>
+</head>
+<body>	
+
+	<canvas id="world1_canvas">
+    <div>name</div> 
+    </canvas>
+<div id= "arrow">
+	
+</div>
+<script src="./ts/build/out.js"></script>
+
+<!--
+	<script>
+
+
+
+
+
+//调试窗口
+
+var ar = document.getElementById("arrow");
+var log = {
+	mes:"",
+	add:(mes,color)=>{
+		log.mes = log.mes +"<br><mes style = 'color:"+color+"'>"+ mes +"</mes>";
+	},
+	set:(mes,color)=>{
+		log.mes = "<br><mes style = 'color:"+color+"'>"+ mes +"</mes>";
+	},
+	update:()=>{
+		ar.innerHTML = log.mes;
+	}
+};
+//判断设备
+var u = navigator.userAgent;
+var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1; //android终端
+var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+var isPc = !isAndroid && !isiOS; //pc
+
+
+//控制器信息记录
+var controler =  {
+	//鼠标
+	mouse:{
+		//鼠标状态 ,是否被按下
+		isDown:false,
+		//上一帧的鼠标位置
+		deltPos:{
+			x:0,
+			y:0
+		},
+		//这一帧的位置
+		thisPos:{
+			x:0,
+			y:0
+		},
+		//计算鼠标移动向量
+		getMoveVector2 :function(){
+			return {
+				dx:controler.mouse.thisPos.x - controler.mouse.deltPos.x,
+				dy:controler.mouse.thisPos.y - controler.mouse.deltPos.y
+			};
+		},
+		//每一帧更新数据
+		update:function(){
+			if(controler.mouse.isDown){
+				//此处可优化内存
+				var mv = controler.mouse.getMoveVector2();
+				controler.mouse.deltPos.y = controler.mouse.thisPos.y;
+				controler.mouse.deltPos.x = controler.mouse.thisPos.x;
+
+				world.objs.camera.threeObj.children[0].rotation.x+= mv.dy/300; 
+				world.objs.camera.threeObj.rotation.y += mv.dx/300; 
+			}
+		}
+	}
+}
+
+if(!isPc){
+	/*
+	if(window.DeviceOrientationEvent){
+			alert("设备支持陀螺仪");
+		}else{
+			alert("设备不支持陀螺仪");
+	}
+	*/
+}else{
+	console.log("it is  pc ");
+	//鼠标按下
+	addEventListener("mousedown",function(event){
+        controler.mouse.isDown = true;
+        //初始化鼠标位置(重置)
+        controler.mouse.thisPos.x = event.screenX;
+        controler.mouse.thisPos.y = event.screenY;
+        controler.mouse.deltPos.x = event.screenX;
+        controler.mouse.deltPos.y = event.screenY;
+    },false);
+    //鼠标抬起
+    addEventListener("mouseup",function(event){
+        controler.mouse.isDown = false;
+    },false);
+    //鼠标移动
+    addEventListener("mousemove", function(event){
+    	controler.mouse.thisPos.x = event.screenX;
+        controler.mouse.thisPos.y = event.screenY;
+    });
+}
+
+
+
+
+var vright = new THREE.Vector3(0,90,0);
+var gv = new THREE.Vector3();
+// 场景，管理场景对象，
+var world = {
+    con:null,
+    name:"world1",
+    //初始化
+    innit:function(){
+        console.log("world innit :"+world.name);
+        world.canvas =  document.getElementById("world1_canvas");
+        //设置屏幕宽度和高度
+        world.screen.width = world.canvas.clientWidth;
+        world.screen.height = world.canvas.clientHeight;
+        console.log(world.canvas);
+        //设置渲染器
+        world.renderer = new THREE.WebGLRenderer({
+            canvas: world.canvas
+        });
+        world.renderer.setSize(world.screen.width, world.screen.height);//将渲染的大小设为与Canvas相同
+        world.renderer.setClearColor(0xFFFFFF, 0.0);//设置默认颜色与透明度
+
+        //初始化场景
+        world.scence =  new THREE.Scene();
+        //初始化所有对象，并且添加场景对象
+        var objs =  world.objs;
+        for( var obj in objs){
+            try{
+                objs[obj].innit();
+                world.scence.add(objs[obj].threeObj);
+            }catch(e){
+                console.log("===============");
+                log.set(e,"#f00");
+            }
+            
+            console.log(obj + " obj innited")
+        }
+
+        //如果不是pc ，泽添加陀螺仪和摄像机的绑定
+        if(isPc){
+
+        }else{
+                world.con = new THREE.DeviceOrientationControls( world.objs.camera.threeObj );
+        }
+        world.updata();
+        world.render();
+
+    },
+    scence:null,
+    screen:{
+        width:0,
+        height:0
+    },
+    canvas:null,
+    mainCamera:null,
+    isUping:true,
+    updata:function(){
+        if(world.isUping){
+            //更新所有对象
+            for(var obj in world.objs){
+                try{
+                    world.objs[obj].update();
+                }catch(e){
+                console.log(e);
+                }
+            }
+            //渲染
+            world.render();
+            //调试窗口 更新
+            log.update();
+            //相机控制器更新
+            if(isPc){
+                //控制器更新
+                controler.mouse.update();
+            }else{
+                world.con.update();
+            }
+                    
+            window.requestAnimationFrame(world.updata);
+            // setTimeout(world.updata,35);
+        }
+    },
+    renderer:null,
+    render:function(){
+        world.renderer.render(world.scence, world.mainCamera.children[0]);
+    },
+    //hash map
+    objs:{
+        /*
+        exampleObj:{
+            isOK:false,
+            threeObj:null,
+            innit:function(){
+                world.objs.exampleObj.isOK = true;
+            },
+            update:function(){
+
+            }
+        },
+        */
+        // 相机
+        camera:{
+            isOK:false,
+            threeObj : null,
+            innit:function(){
+                var c = new THREE.PerspectiveCamera(
+                    75,
+                    world.screen.width/world.screen.height, 
+                    0.1, 
+                    1000
+                );
+                c.position.x = 0;
+                c.position.y = 0;
+                c.position.z = 0;
+                c.lookAt({
+                    x: 0,
+                    y: 0,
+                    z: 0
+                });
+                var cp = new THREE.Mesh(new THREE.CubeGeometry(0.1,0.1,0.1),new THREE.MeshBasicMaterial({color:0xFFFFFF}));
+                cp.isVisible = false;
+                cp.add(c);
+                world.objs.camera.threeObj = cp;
+                world.objs.camera.isOK = true;
+                world.mainCamera = world.objs.camera.threeObj ;
+            },
+            update:function(){
+
+            }
+        },
+        gamers:{
+            isOK:true,
+            threeObj:null,
+            gamersMap:new HashMap(),
+            getNewGamer:function(userID){
+                var g = {
+                    id:userID,
+                    gameObject:null,
+                    pos:{
+                        x:0,
+                        y:0
+                    },
+                    update:function(){
+
+                    }
+                }
+                return g
+            },
+            innit:function(){
+                world.objs.exampleObj.isOK = true;
+            },
+            update:function(){
+
+            }
+        },
+    }
+}
+
+var  getQueryString = function(name) {
+    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+    var r = window.location.search.substr(1).match(reg);
+    if (r != null) return unescape(r[2]); return null;
+}
+
+/** 
+* *********  操作实例  ************** 
+*   var map = new HashMap(); 
+*   map.put("key1","Value1"); 
+*   map.put("key2","Value2"); 
+*   map.put("key3","Value3"); 
+*   map.put("key4","Value4"); 
+*   map.put("key5","Value5"); 
+*   alert("size："+map.size()+" key1："+map.get("key1")); 
+*   map.remove("key1"); 
+*   map.put("key3","newValue"); 
+*   var values = map.values(); 
+*   for(var i in values){ 
+*       document.write(i+"："+values[i]+"   "); 
+*   } 
+*   document.write("<br>"); 
+*   var keySet = map.keySet(); 
+*   for(var i in keySet){ 
+*       document.write(i+"："+keySet[i]+"  "); 
+*   } 
+*   alert(map.isEmpty()); 
+*/  
+//实现 hashmap  
+function HashMap(){  
+    //定义长度  
+    var length = 0;  
+    //创建一个对象  
+    var obj = new Object();  
+  
+    /** 
+    * 判断Map是否为空 
+    */  
+    this.isEmpty = function(){  
+        return length == 0;  
+    };  
+  
+    /** 
+    * 判断对象中是否包含给定Key 
+    */  
+    this.containsKey=function(key){  
+        return (key in obj);  
+    };  
+  
+    /** 
+    * 判断对象中是否包含给定的Value 
+    */  
+    this.containsValue=function(value){  
+        for(var key in obj){  
+            if(obj[key] == value){  
+                return true;  
+            }  
+        }  
+        return false;  
+    };  
+  
+    /** 
+    *向map中添加数据 
+    */  
+    this.put=function(key,value){  
+        if(!this.containsKey(key)){  
+            length++;  
+        }  
+        obj[key] = value;  
+    };  
+  
+    /** 
+    * 根据给定的Key获得Value 
+    */  
+    this.get=function(key){  
+        return this.containsKey(key)?obj[key]:null;  
+    };  
+  
+    /** 
+    * 根据给定的Key删除一个值 
+    */  
+    this.remove=function(key){  
+        if(this.containsKey(key)&&(delete obj[key])){  
+            length--;  
+        }  
+    };  
+  
+    /** 
+    * 获得Map中的所有Value 
+    */  
+    this.values=function(){  
+        var _values= new Array();  
+        for(var key in obj){  
+            _values.push(obj[key]);  
+        }  
+        return _values;  
+    };  
+  
+    /** 
+    * 获得Map中的所有Key 
+    */  
+    this.keySet=function(){  
+        var _keys = new Array();  
+        for(var key in obj){  
+            _keys.push(key);  
+        }  
+        return _keys;  
+    };  
+  
+    /** 
+    * 获得Map的长度 
+    */  
+    this.size = function(){  
+        return length;  
+    };  
+  
+    /** 
+    * 清空Map 
+    */  
+    this.clear = function(){  
+        length = 0;  
+        obj = new Object();  
+    };  
+}
+
+
+
+    </script>
+-->
+    <script type="text/javascript">
+        //最后获取焦点
+        document.getElementById('world1_canvas').focus()
+    </script>
+</body>
+</html>

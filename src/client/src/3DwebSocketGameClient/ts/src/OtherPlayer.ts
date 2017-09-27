@@ -1,0 +1,11 @@
+
+/**
+ * 
+ */
+class OtherPlayer extends GameUser {
+
+    /**
+     * 
+     */
+
+}
