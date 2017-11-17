@@ -19,16 +19,17 @@ class Messager extends GameBehavior {
     };
     sendTime:number
     onMessage =(e: MessageEvent)=>{
+    
         var es  = <string>e.data;
         var arr = es.split("|");
         var thisGameID = arr[0];
    //     console.log(thisGameID);
         var game = JSON.parse(arr[1]);
+        console.log(game);
         var gs = game.gamers;
-        console.log(new Date().getTime()-this.sendTime);
+        // console.log(new Date().getTime()-this.sendTime);
         this.sendTime = new Date().getTime();
         this.ws.send(this.message);
-        Log.log(gs);
         for(let i = 0; i< gs.length;i++){
             if(thisGameID==gs[i].gamerID){
                 this.player.shandow.position.x = gs[i].positionX;
@@ -37,11 +38,9 @@ class Messager extends GameBehavior {
             }
         }
         
-        
-        
-        
     //    var pos = 
     //    Log.log(gs);
+    
     } 
 
     update(){

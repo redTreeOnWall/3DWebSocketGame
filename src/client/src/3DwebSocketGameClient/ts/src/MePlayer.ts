@@ -3,6 +3,21 @@
  * 
  */
 class MePlayer extends GameBehavior {
+    //上一个影子帧，
+    public deltPos : Vector3 = new Vector3();
+    public deltEle:number =0;
+    //最新的影子帧
+    public thisPos : Vector3 = new Vector3();
+    public thisEle:number =0;
+
+    //服务器帧间隔时间
+    public serverDeltTime:number;
+    //客户端帧间隔时间
+    public clientDeltTime:number;
+
+    //当前帧是否是最新的帧
+    public HasNew: boolean;
+
     public shandow:any;
     update(){
         
@@ -31,9 +46,9 @@ class MePlayer extends GameBehavior {
         bgm.map.repeat.set(100,100);
         var bg = new THREE.Mesh(new THREE.CubeGeometry(100,0.01,100),bgm);
         /*
-        bg.receiveShadow = true;
-        cp.castShadow  = true;
-        light.castShadow = true;
+            bg.receiveShadow  = true;
+            cp.castShadow  = true;
+            light.castShadow = true;
         */
         this.world.scence.add(bg);
         this.world.scence.add(cp2);

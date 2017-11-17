@@ -4,7 +4,8 @@
  */
 class GameUser extends GameBehavior{
     color:any;
-    transformLocal:any;
-    transformNet:any;
+    aimPosition =  new Vector3();
+    //速度
+    speed = new Vector3();
     
 }

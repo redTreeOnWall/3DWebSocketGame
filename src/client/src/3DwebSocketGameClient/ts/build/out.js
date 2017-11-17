@@ -65,7 +65,11 @@ var GameObjs = (function () {
 var GameUser = (function (_super) {
     __extends(GameUser, _super);
     function GameUser() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.aimPosition = new Vector3();
+        //速度
+        _this.speed = new Vector3();
+        return _this;
     }
     return GameUser;
 }(GameBehavior));
@@ -99,20 +103,28 @@ var MainClass = (function () {
     MainClass.prototype.main = function () {
         // TODO implement here
         console.log("main");
-        console.log(this);
-        console.log(World);
         var world = new World("world1");
         world.init();
         var loop = function () {
-            world.update();
-            requestAnimationFrame(loop);
+            if (MainClass.run) {
+                world.update();
+                requestAnimationFrame(loop);
+            }
         };
         loop();
     };
+    MainClass.run = true;
     return MainClass;
 }());
 window.onload = function () {
+    test();
     new MainClass().main();
+};
+var test = function () {
+    var x;
+    x = {};
+    x["name"] = "nameValue";
+    console.log(x);
 };
 /**
  *
@@ -120,7 +132,14 @@ window.onload = function () {
 var MePlayer = (function (_super) {
     __extends(MePlayer, _super);
     function MePlayer() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        //上一个影子帧，
+        _this.deltPos = new Vector3();
+        _this.deltEle = 0;
+        //最新的影子帧
+        _this.thisPos = new Vector3();
+        _this.thisEle = 0;
+        return _this;
     }
     MePlayer.prototype.update = function () {
     };
@@ -143,9 +162,9 @@ var MePlayer = (function (_super) {
         bgm.map.repeat.set(100, 100);
         var bg = new THREE.Mesh(new THREE.CubeGeometry(100, 0.01, 100), bgm);
         /*
-        bg.receiveShadow = true;
-        cp.castShadow  = true;
-        light.castShadow = true;
+            bg.receiveShadow  = true;
+            cp.castShadow  = true;
+            light.castShadow = true;
         */
         this.world.scence.add(bg);
         this.world.scence.add(cp2);
@@ -182,11 +201,11 @@ var Messager = (function (_super) {
             var thisGameID = arr[0];
             //     console.log(thisGameID);
             var game = JSON.parse(arr[1]);
+            console.log(game);
             var gs = game.gamers;
-            console.log(new Date().getTime() - _this.sendTime);
+            // console.log(new Date().getTime()-this.sendTime);
             _this.sendTime = new Date().getTime();
             _this.ws.send(_this.message);
-            Log.log(gs);
             for (var i = 0; i < gs.length; i++) {
                 if (thisGameID == gs[i].gamerID) {
                     _this.player.shandow.position.x = gs[i].positionX;
@@ -391,12 +410,14 @@ var UsersMap = (function (_super) {
      */
     UsersMap.prototype.get = function () {
         // TODO implement here
+        this.users["name"];
     };
     /**
      *
      */
-    UsersMap.prototype.put = function () {
+    UsersMap.prototype.put = function (g) {
         // TODO implement here
+        this.users["name"] = g;
     };
     return UsersMap;
 }(GameBehavior));
@@ -493,3 +514,4 @@ var World = (function () {
     };
     return World;
 }());
+//# sourceMappingURL=out.js.map

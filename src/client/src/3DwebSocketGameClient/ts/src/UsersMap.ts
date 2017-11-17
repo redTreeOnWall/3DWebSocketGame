@@ -4,10 +4,10 @@
  */
 class UsersMap extends GameBehavior {
     start(){
-
+        
     }
     update(){
-
+        
     }
 
     /**
@@ -23,21 +23,22 @@ class UsersMap extends GameBehavior {
     /**
      * 
      */
-    users: GameUser;
+    users:{
+        [key:string]:GameUser
+    };
     /**
      * 
      */
     get() :  void {
         // TODO implement here
+        this.users["name"]
     }
 
     /**
      * 
      */
-    put() :  void {
+    put(g:GameUser) :  void {
         // TODO implement here
+        this.users["name"] =  g;
     }
-
-    
-
 }
